@@ -1,4 +1,3 @@
-# QuickChat — Login Page (Option 3)
 
 **Centered glass card · warm dark gradient · liquid-glass effect**
 
