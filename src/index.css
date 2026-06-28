@@ -140,3 +140,63 @@ body {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* ---------------------------------------------------------------------------
+   Chat — dark indigo theme helpers
+   --------------------------------------------------------------------------- */
+
+/* glassy conversation header */
+.chat-header-glass {
+  background: rgba(10, 10, 15, 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* emoji popover open animation (spec §4.5: opacity + translateY/scale, 160ms) */
+.emoji-pop {
+  animation: emojiPop 0.16s ease-out;
+  transform-origin: bottom left;
+}
+@keyframes emojiPop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* typing indicator — lead dot bounces (spec §4.3: qcb, 1.2s) */
+.qc-typing span {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #8b7bff;
+  animation: qcb 1.2s infinite ease-in-out both;
+}
+.qc-typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.qc-typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes qcb {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  30% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+/* press feedback for icon buttons (spec §5: scale .93) */
+.press:active {
+  transform: scale(0.93);
+}

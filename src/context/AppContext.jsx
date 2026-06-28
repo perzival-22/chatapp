@@ -61,6 +61,7 @@ export function AppProvider({ children }) {
           id: d.id,
           participantId: otherId,
           lastMessage: data.lastMessage || '',
+          lastMessageAt: data.lastMessageAt?.toMillis?.() ?? 0,
           messages: [], // filled by the message listener when selected
         }
       }))

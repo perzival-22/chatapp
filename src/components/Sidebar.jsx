@@ -1,81 +1,111 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import assets from '../../assets/assets.js'
 import { useApp } from '../context/AppContext.jsx'
+import Avatar from './Avatar.jsx'
+import { LogoIcon, PlusIcon, SearchIcon } from './icons.jsx'
+import { formatTime } from '../lib/time.js'
 
 export default function Sidebar() {
   const { chats, selectedChatId, selectChat, user, logout, findUser, allUsers, startChat } = useApp()
   const [query, setQuery] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const searchRef = useRef(null)
   const navigate = useNavigate()
 
   const userMatches = query
     ? allUsers.filter((u) => u.name.toLowerCase().includes(query.toLowerCase()))
     : []
 
-  const visibleChats = chats.filter((c) =>
-    findUser(c.participantId).name.toLowerCase().includes(query.toLowerCase())
-  )
+  const visibleChats = chats.filter((c) => {
+    const other = findUser(c.participantId)
+    const q = query.toLowerCase()
+    return other.name.toLowerCase().includes(q) || (c.lastMessage || '').toLowerCase().includes(q)
+  })
+
+  const focusSearch = () => searchRef.current?.focus()
 
   return (
-    <aside className="text-white flex flex-col h-full bg-black/10 border-r border-white/10">
-      {/* Header */}
-      <div className="p-5 pb-4">
+    <aside
+      className="text-white flex flex-col h-full border-r"
+      style={{ background: '#0c0c14', borderColor: '#181826' }}
+    >
+      {/* Header: brand + new chat icon button */}
+      <div className="px-4 pt-5 pb-3">
         <div className="flex items-center justify-between">
-          <img src={assets.logo} alt="QuickChat" className="h-7" />
+          <div className="flex items-center gap-2.5">
+            <span
+              className="w-8 h-8 rounded-[10px] flex items-center justify-center text-white"
+              style={{
+                background: 'linear-gradient(135deg, #8b7bff, #6d5cff)',
+                boxShadow: '0 8px 20px rgba(109,92,255,.4)',
+              }}
+            >
+              <LogoIcon width={18} height={18} />
+            </span>
+            <span className="font-display font-bold text-[18px]">QuickChat</span>
+          </div>
+
           <div className="relative">
-            <img
-              src={assets.menu_icon}
-              alt="menu"
-              onClick={() => setMenuOpen((v) => !v)}
-              className="h-5 cursor-pointer opacity-80 hover:opacity-100"
-            />
-            {menuOpen && (
-              <div
-                className="absolute right-0 top-7 z-10 w-36 rounded-md bg-zinc-800/95 border border-white/10 text-sm shadow-xl"
-                onMouseLeave={() => setMenuOpen(false)}
-              >
-                <button
-                  onClick={() => navigate('/profile')}
-                  className="block w-full text-left px-4 py-2 hover:bg-white/10"
-                >
-                  Edit Profile
-                </button>
-                <hr className="border-white/10" />
-                <button
-                  onClick={logout}
-                  className="block w-full text-left px-4 py-2 hover:bg-white/10"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
+            <button
+              onClick={focusSearch}
+              title="New chat"
+              aria-label="New chat"
+              className="press w-9 h-9 rounded-[10px] flex items-center justify-center text-white transition"
+              style={{
+                background: 'linear-gradient(135deg, #8b7bff, #6d5cff)',
+                boxShadow: '0 8px 20px rgba(109,92,255,.4)',
+              }}
+            >
+              <PlusIcon width={18} height={18} />
+            </button>
           </div>
         </div>
 
+        {/* New chat (full button) */}
+        <button
+          onClick={focusSearch}
+          className="press mt-4 w-full flex items-center justify-center gap-2 rounded-[12px] py-2.5 text-sm font-semibold text-white transition"
+          style={{
+            background: 'linear-gradient(135deg, #8b7bff, #6d5cff)',
+            boxShadow: '0 8px 22px rgba(109,92,255,.4)',
+          }}
+        >
+          <PlusIcon width={17} height={17} /> New chat
+        </button>
+
         {/* Search */}
-        <div className="mt-4 flex items-center gap-2 rounded-full bg-black/20 border border-white/10 px-3 py-2">
-          <img src={assets.search_icon} alt="" className="h-3.5 opacity-70" />
+        <div
+          className="mt-3 flex items-center gap-2 rounded-[10px] px-3 py-2.5 border"
+          style={{ background: '#13131c', borderColor: '#20202e' }}
+        >
+          <SearchIcon width={16} height={16} style={{ color: '#52526a' }} />
           <input
+            ref={searchRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search users"
-            className="bg-transparent text-xs outline-none placeholder-white/50 flex-1"
+            placeholder="Search conversations"
+            className="bg-transparent text-[13px] outline-none flex-1"
+            style={{ color: '#ececf4' }}
           />
         </div>
       </div>
 
-      {/* New user matches (start new chat) */}
+      {/* New user matches (start a new conversation) */}
       {userMatches.length > 0 && (
-        <div className="px-2 pb-2 border-b border-white/10">
-          <p className="text-[11px] text-white/40 px-3 pb-1">New conversation</p>
+        <div className="px-2 pb-2 border-b" style={{ borderColor: '#181826' }}>
+          <p
+            className="text-[11px] uppercase tracking-[.1em] px-3 pt-1 pb-1.5"
+            style={{ color: '#52526a' }}
+          >
+            People
+          </p>
           {userMatches.map((u) => (
             <button
               key={u.uid}
               onClick={() => { startChat(u); setQuery('') }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-left hover:bg-white/8 transition"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[12px] mb-0.5 text-left transition hover:bg-[#13131c]"
             >
-              <img src={u.avatar} alt={u.name} className="h-9 w-9 rounded-full object-cover shrink-0" />
+              <Avatar name={u.name} src={u.avatar} uid={u.uid} size={38} ringColor="#0c0c14" />
               <p className="text-sm font-medium truncate">{u.name}</p>
             </button>
           ))}
@@ -83,7 +113,7 @@ export default function Sidebar() {
       )}
 
       {/* Conversation list */}
-      <div className="flex-1 overflow-y-auto scroll-thin px-2">
+      <div className="flex-1 overflow-y-auto scroll-thin px-2 py-1">
         {visibleChats.map((c) => {
           const other = findUser(c.participantId)
           const active = c.id === selectedChatId
@@ -91,39 +121,102 @@ export default function Sidebar() {
             <button
               key={c.id}
               onClick={() => selectChat(c.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-left transition
-                ${active ? 'bg-violet-500/30' : 'hover:bg-white/8'}`}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[12px] mb-0.5 text-left transition"
+              style={{ background: active ? '#13131c' : 'transparent' }}
+              onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#13131c' }}
+              onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
             >
-              <div className="relative shrink-0">
-                <img src={other.avatar} alt={other.name} className="h-9 w-9 rounded-full object-cover" />
-                {other.online && (
-                  <img src={assets.green_dot} alt="" className="absolute -bottom-0.5 -right-0.5 h-3" />
-                )}
-              </div>
+              <Avatar
+                name={other.name}
+                src={other.avatar}
+                uid={other.uid}
+                size={44}
+                online={other.online}
+                ringColor={active ? '#13131c' : '#0c0c14'}
+              />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium truncate">{other.name}</p>
-                <p className="text-xs text-white/55 truncate">{c.lastMessage || 'Say hi 👋'}</p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[15px] font-semibold truncate font-display">{other.name}</p>
+                  {c.lastMessageAt > 0 && (
+                    <span className="text-[11px] shrink-0" style={{ color: '#52526a' }}>
+                      {formatTime(c.lastMessageAt)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between gap-2 mt-0.5">
+                  <p className="text-[13px] truncate" style={{ color: '#7c7c92' }}>
+                    {c.lastMessage || 'Say hi 👋'}
+                  </p>
+                  {c.unread > 0 && (
+                    <span
+                      className="shrink-0 h-[18px] min-w-[18px] px-1.5 grid place-items-center text-[11px] font-semibold rounded-full text-white"
+                      style={{ background: '#6d5cff' }}
+                    >
+                      {c.unread}
+                    </span>
+                  )}
+                </div>
               </div>
-              {c.unread > 0 && (
-                <span className="shrink-0 h-5 min-w-5 px-1.5 grid place-items-center text-[11px] rounded-full bg-violet-500">
-                  {c.unread}
-                </span>
-              )}
             </button>
           )
         })}
         {visibleChats.length === 0 && userMatches.length === 0 && (
-          <p className="text-center text-xs text-white/50 mt-6">No conversations found.</p>
+          <p className="text-center text-[13px] mt-8" style={{ color: '#52526a' }}>
+            {query ? 'No matches found.' : 'No conversations yet.'}
+          </p>
         )}
       </div>
 
       {/* Current user footer */}
-      <div className="p-4 flex items-center gap-3 border-t border-white/10">
-        <img src={user.avatar} alt={user.name} className="h-9 w-9 rounded-full object-cover" />
-        <div className="min-w-0">
-          <p className="text-sm font-medium truncate">{user.name}</p>
-          <p className="text-xs text-emerald-400">online</p>
+      <div
+        className="relative px-3 py-3 flex items-center gap-3 border-t"
+        style={{ borderColor: '#181826' }}
+      >
+        <Avatar name={user.name} src={user.avatar} uid={user.uid} size={38} online ringColor="#0c0c14" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold truncate font-display">{user.name}</p>
+          <p className="text-[11px] flex items-center gap-1.5" style={{ color: '#34e0a1' }}>
+            <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: '#34e0a1' }} />
+            Active now
+          </p>
         </div>
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          title="Menu"
+          aria-label="Account menu"
+          className="press w-8 h-8 rounded-[9px] grid place-items-center transition"
+          style={{ color: '#7c7c92' }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = '#1c1c28')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="5" cy="12" r="1.4" /><circle cx="12" cy="12" r="1.4" /><circle cx="19" cy="12" r="1.4" />
+          </svg>
+        </button>
+
+        {menuOpen && (
+          <div
+            className="absolute right-3 bottom-14 z-20 w-40 rounded-[12px] border text-sm overflow-hidden"
+            style={{ background: '#13131c', borderColor: '#232334', boxShadow: '0 20px 50px rgba(0,0,0,.5)' }}
+            onMouseLeave={() => setMenuOpen(false)}
+          >
+            <button
+              onClick={() => navigate('/profile')}
+              className="block w-full text-left px-4 py-2.5 hover:bg-[#1c1c28] transition"
+            >
+              Edit profile
+            </button>
+            <hr style={{ borderColor: '#232334' }} />
+            <button
+              onClick={logout}
+              className="block w-full text-left px-4 py-2.5 hover:bg-[#1c1c28] transition"
+              style={{ color: '#ff6ba8' }}
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   )

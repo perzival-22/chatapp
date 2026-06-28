@@ -7,16 +7,20 @@ export default function Chat() {
   const { selectedChat } = useApp()
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8">
+    <div
+      className="fixed inset-0 flex items-center justify-center p-0 sm:p-6"
+      style={{ background: '#0a0a0f' }}
+    >
       <div
-        className="w-full max-w-6xl h-[88vh] backdrop-blur-2xl bg-white/8 border border-white/15
-                   rounded-2xl overflow-hidden grid
-                   grid-cols-1 md:grid-cols-[minmax(0,1.1fr)_minmax(0,2fr)]
-                   xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)]"
+        className="w-full max-w-6xl h-full sm:h-[88vh] overflow-hidden grid
+                   grid-cols-1 md:grid-cols-[340px_minmax(0,1fr)]
+                   xl:grid-cols-[340px_minmax(0,1fr)_300px]
+                   sm:rounded-[18px] border"
+        style={{ borderColor: '#181826', boxShadow: '0 30px 80px rgba(0,0,0,.55)' }}
       >
         <Sidebar />
         <ChatBox />
-        {/* Right panel only when a chat is open and the screen is wide */}
+        {/* Right detail panel only when a chat is open and the screen is wide */}
         {selectedChat && <RightSidebar />}
       </div>
     </div>
