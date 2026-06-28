@@ -83,6 +83,44 @@ export function KebabIcon(props) {
   )
 }
 
+export function MicIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="9" y="2" width="6" height="11" rx="3" />
+      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+    </svg>
+  )
+}
+
+export function MicOffIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m2 2 20 20" />
+      <path d="M9 9v2a3 3 0 0 0 4.5 2.6M15 11V5a3 3 0 0 0-5.7-1.3" />
+      <path d="M5 11a7 7 0 0 0 10.5 6M19 11a7 7 0 0 1-.3 2M12 18v3" />
+    </svg>
+  )
+}
+
+export function VideoOffIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m2 2 20 20" />
+      <path d="M16 10.5V8a2 2 0 0 0-2-2H8.5M5 6a2 2 0 0 0-1 1.7v8.6A2 2 0 0 0 6 18h8a2 2 0 0 0 1.5-.7" />
+      <path d="m16 10 6-3.5v11l-3-1.7" />
+    </svg>
+  )
+}
+
+export function PhoneOffIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M22 2 2 22" />
+      <path d="M9.5 5.6A14 14 0 0 0 4.1 4 2 2 0 0 0 2 6a16 16 0 0 0 1.4 6M8 13a16 16 0 0 0 6 6 16 16 0 0 0 6 1.4 2 2 0 0 0 2-2.1 14 14 0 0 0-1.6-5.4" />
+    </svg>
+  )
+}
+
 export function LogoIcon(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>

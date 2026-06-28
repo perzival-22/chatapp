@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../context/AppContext.jsx'
+import { useCall } from '../context/CallContext.jsx'
 import Avatar from './Avatar.jsx'
 import { LogoIcon, PaperclipIcon, PhoneIcon, SendIcon, SmileIcon, VideoIcon, KebabIcon } from './icons.jsx'
 import { formatTime } from '../lib/time.js'
@@ -25,9 +26,9 @@ function dayLabel(ts) {
 
 export default function ChatBox() {
   const { selectedChat, user, sendMessage, findUser } = useApp()
+  const { startCall } = useCall()
   const [text, setText] = useState('')
   const [emojiOpen, setEmojiOpen] = useState(false)
-  const [call, setCall] = useState(null) // null | 'voice' | 'video'
   const endRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -38,7 +39,6 @@ export default function ChatBox() {
   // Reset transient UI when switching conversations.
   useEffect(() => {
     setEmojiOpen(false)
-    setCall(null)
   }, [selectedChat?.id])
 
   if (!selectedChat) {
@@ -107,7 +107,7 @@ export default function ChatBox() {
         {/* action cluster */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setCall('voice')}
+            onClick={() => startCall(other, 'voice')}
             title="Voice call" aria-label="Voice call"
             className="press w-[42px] h-[42px] rounded-[11px] grid place-items-center transition"
             style={iconBtn}
@@ -117,7 +117,7 @@ export default function ChatBox() {
             <PhoneIcon width={19} height={19} />
           </button>
           <button
-            onClick={() => setCall('video')}
+            onClick={() => startCall(other, 'video')}
             title="Video call" aria-label="Video call"
             className="press w-[42px] h-[42px] rounded-[11px] grid place-items-center transition"
             style={iconBtn}
@@ -285,30 +285,6 @@ export default function ChatBox() {
           </button>
         </div>
       </form>
-
-      {/* Call surface (placeholder — no WebRTC backend yet) */}
-      {call && (
-        <div
-          className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-5"
-          style={{ background: 'rgba(10,10,15,.82)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
-        >
-          <Avatar name={other.name} src={other.avatar} uid={other.uid} size={104} radius={28} />
-          <div className="text-center">
-            <p className="font-display font-semibold text-xl">{other.name}</p>
-            <p className="text-[13px] mt-1 flex items-center justify-center gap-2" style={{ color: '#7c7c92' }}>
-              {call === 'video' ? <VideoIcon width={15} height={15} /> : <PhoneIcon width={15} height={15} />}
-              {call === 'video' ? 'Video calling…' : 'Calling…'}
-            </p>
-          </div>
-          <button
-            onClick={() => setCall(null)}
-            className="press mt-2 px-6 py-2.5 rounded-full text-white text-sm font-semibold"
-            style={{ background: '#e0457e', boxShadow: '0 10px 26px rgba(224,69,126,.4)' }}
-          >
-            End call
-          </button>
-        </div>
-      )}
     </section>
   )
 }

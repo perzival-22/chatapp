@@ -3,6 +3,7 @@ import bg from '../assets/background.png'
 import Login from './pages/Login.jsx'
 import Chat from './pages/Chat.jsx'
 import Profile from './pages/Profile.jsx'
+import CallScreen from './components/CallScreen.jsx'
 import { useApp } from './context/AppContext.jsx'
 
 export default function App() {
@@ -20,6 +21,7 @@ if (!authReady) return <div className="min-h-screen grid place-items-center text
         <Route path="/profile" element={isAuthed ? <Profile /> : <Navigate to="/login" />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      {isAuthed && <CallScreen />}
     </div>
   )
 }
