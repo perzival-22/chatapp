@@ -6,7 +6,8 @@ import Profile from './pages/Profile.jsx'
 import { useApp } from './context/AppContext.jsx'
 
 export default function App() {
-  const { isAuthed } = useApp()
+  const { isAuthed, authReady } = useApp()
+if (!authReady) return <div className="min-h-screen grid place-items-center text-white">Loading…</div>
 
   return (
     <div

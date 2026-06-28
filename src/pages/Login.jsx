@@ -4,19 +4,27 @@ import assets from '../../assets/assets.js'
 import { useApp } from '../context/AppContext.jsx'
 
 export default function Login() {
-  const [mode, setMode] = useState('login') // 'login' | 'signup'
+  const [mode, setMode] = useState('login')
   const [agreed, setAgreed] = useState(false)
-  const { login } = useApp()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const { login, signup } = useApp()
   const navigate = useNavigate()
 
   const isSignup = mode === 'signup'
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // DRAFT: no real auth. Later -> Firebase signInWithEmailAndPassword /
-    // createUserWithEmailAndPassword, then redirect on success.
-    login()
-    navigate('/')
+    setError('')
+    try {
+      if (isSignup) await signup(name, email, password)
+      else await login(email, password)
+      navigate('/')
+    } catch (err) {
+      setError(err.code?.replace('auth/', '').replaceAll('-', ' ') || 'Something went wrong')
+    }
   }
 
   return (
@@ -45,6 +53,8 @@ export default function Login() {
           <input
             type="text"
             placeholder="Full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
             className="rounded-md bg-transparent border border-white/30 px-4 py-2.5 outline-none placeholder-white/50 focus:border-violet-300"
           />
@@ -53,12 +63,16 @@ export default function Login() {
         <input
           type="email"
           placeholder="Email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
           className="rounded-md bg-transparent border border-white/30 px-4 py-2.5 outline-none placeholder-white/50 focus:border-violet-300"
         />
         <input
           type="password"
           placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
           className="rounded-md bg-transparent border border-white/30 px-4 py-2.5 outline-none placeholder-white/50 focus:border-violet-300"
         />
@@ -72,6 +86,8 @@ export default function Login() {
           />
           <span>Agree to the terms of use &amp; privacy policy.</span>
         </label>
+
+        {error && <p className="text-red-300 text-sm">{error}</p>}
 
         <button
           type="submit"

@@ -2,13 +2,16 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import assets from '../../assets/assets.js'
 import { useApp } from '../context/AppContext.jsx'
-import { findUser } from '../data/dummyData.js'
 
 export default function Sidebar() {
-  const { chats, selectedChatId, selectChat, user, logout } = useApp()
+  const { chats, selectedChatId, selectChat, user, logout, findUser, allUsers, startChat } = useApp()
   const [query, setQuery] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
+
+  const userMatches = query
+    ? allUsers.filter((u) => u.name.toLowerCase().includes(query.toLowerCase()))
+    : []
 
   const visibleChats = chats.filter((c) =>
     findUser(c.participantId).name.toLowerCase().includes(query.toLowerCase())
@@ -62,11 +65,27 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {/* New user matches (start new chat) */}
+      {userMatches.length > 0 && (
+        <div className="px-2 pb-2 border-b border-white/10">
+          <p className="text-[11px] text-white/40 px-3 pb-1">New conversation</p>
+          {userMatches.map((u) => (
+            <button
+              key={u.uid}
+              onClick={() => { startChat(u); setQuery('') }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-left hover:bg-white/8 transition"
+            >
+              <img src={u.avatar} alt={u.name} className="h-9 w-9 rounded-full object-cover shrink-0" />
+              <p className="text-sm font-medium truncate">{u.name}</p>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Conversation list */}
       <div className="flex-1 overflow-y-auto scroll-thin px-2">
         {visibleChats.map((c) => {
           const other = findUser(c.participantId)
-          const last = c.messages[c.messages.length - 1]
           const active = c.id === selectedChatId
           return (
             <button
@@ -83,9 +102,7 @@ export default function Sidebar() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium truncate">{other.name}</p>
-                <p className="text-xs text-white/55 truncate">
-                  {last?.image ? '📷 Photo' : last?.text || 'Say hi 👋'}
-                </p>
+                <p className="text-xs text-white/55 truncate">{c.lastMessage || 'Say hi 👋'}</p>
               </div>
               {c.unread > 0 && (
                 <span className="shrink-0 h-5 min-w-5 px-1.5 grid place-items-center text-[11px] rounded-full bg-violet-500">
@@ -95,7 +112,7 @@ export default function Sidebar() {
             </button>
           )
         })}
-        {visibleChats.length === 0 && (
+        {visibleChats.length === 0 && userMatches.length === 0 && (
           <p className="text-center text-xs text-white/50 mt-6">No conversations found.</p>
         )}
       </div>

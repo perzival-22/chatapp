@@ -10,15 +10,14 @@ export default function Profile() {
   const [avatar, setAvatar] = useState(user.avatar)
   const navigate = useNavigate()
 
+ const [avatarFile, setAvatarFile] = useState(null)
   const handleAvatar = (e) => {
     const file = e.target.files?.[0]
-    if (file) setAvatar(URL.createObjectURL(file))
-    // Later: upload to Firebase Storage, save the download URL on users/{uid}.
+    if (file) { setAvatarFile(file); setAvatar(URL.createObjectURL(file)) }
   }
-
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault()
-    updateProfile({ name, bio, avatar }) // Later: updateDoc(users/{uid}, ...)
+    await updateProfile({ name, bio, ...(avatarFile && { avatarFile }) })
     navigate('/')
   }
 

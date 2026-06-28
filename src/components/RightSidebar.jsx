@@ -1,10 +1,9 @@
 import assets from '../../assets/assets.js'
 import { useApp } from '../context/AppContext.jsx'
-import { findUser } from '../data/dummyData.js'
 import { formatLastSeen } from '../lib/time.js'
 
 export default function RightSidebar() {
-  const { selectedChat, logout } = useApp()
+  const { selectedChat, logout, findUser } = useApp()
   if (!selectedChat) return null
 
   const other = findUser(selectedChat.participantId)

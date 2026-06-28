@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import assets from '../../assets/assets.js'
 import { useApp } from '../context/AppContext.jsx'
-import { findUser } from '../data/dummyData.js'
 import { formatTime } from '../lib/time.js'
 
 export default function ChatBox() {
-  const { selectedChat, user, sendMessage } = useApp()
+  const { selectedChat, user, sendMessage, findUser } = useApp()
   const [text, setText] = useState('')
   const endRef = useRef(null)
 
@@ -32,10 +31,7 @@ export default function ChatBox() {
 
   const handleImage = (e) => {
     const file = e.target.files?.[0]
-    if (!file) return
-    // DRAFT: preview only via object URL. Later -> upload to Firebase Storage,
-    // then store the download URL on the message.
-    sendMessage({ image: URL.createObjectURL(file) })
+    if (file) sendMessage({ imageFile: file })
     e.target.value = ''
   }
 
