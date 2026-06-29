@@ -9,7 +9,7 @@ export default function App() {
   const { isAuthed, authReady } = useApp()
   if (!authReady) {
     return (
-      <div className="min-h-screen grid place-items-center" style={{ background: '#eceaf6', color: '#7c5cfc' }}>
+      <div className="min-h-screen grid place-items-center" style={{ background: 'var(--bg-shell)', color: 'var(--violet)' }}>
         Loading…
       </div>
     )

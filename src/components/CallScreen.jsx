@@ -7,7 +7,7 @@ import {
 } from './icons.jsx'
 
 const END = '#ff5b6a'        // danger/end-call (soft red)
-const VIOLET = '#7c5cfc'
+const VIOLET = '#6d4ae0'     // brand grape (matches --violet)
 
 function useElapsed(active) {
   const [sec, setSec] = useState(0)
@@ -187,7 +187,7 @@ function RingAvatar({ name, src, uid, dark }) {
   return (
     <div
       className="rounded-full grid place-items-center"
-      style={{ padding: 5, background: 'conic-gradient(var(--violet-ring), #7c5cfc, var(--violet-ring))' }}
+      style={{ padding: 5, background: 'conic-gradient(var(--violet-ring), var(--violet), var(--violet-ring))' }}
     >
       <div className="rounded-full p-[5px]" style={{ background: dark ? '#06060a' : '#fff' }}>
         <Avatar name={name} src={src} uid={uid} size={150} radius={999} />

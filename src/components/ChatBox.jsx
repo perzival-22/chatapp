@@ -82,7 +82,7 @@ export default function ChatBox({ onOpenProfile }) {
           className="press flex items-center gap-2.5 flex-1 min-w-0 text-left"
           aria-label={`Open ${other.name}'s profile`}
         >
-          <Avatar name={other.name} src={other.avatar} uid={other.uid} size={42} radius={999} online={other.online} ringColor="#7657f3" />
+          <Avatar name={other.name} src={other.avatar} uid={other.uid} size={42} radius={999} online={other.online} ringColor="#6d4ae0" />
           <div className="flex-1 min-w-0">
             <p className="font-semibold leading-tight truncate text-white">{other.name}</p>
             {other.online ? (
@@ -107,7 +107,7 @@ export default function ChatBox({ onOpenProfile }) {
       </header>
 
       {/* Thread */}
-      <div className="flex-1 overflow-y-auto scroll-thin px-4 py-5 space-y-1.5" style={{ background: '#fbfaff' }}>
+      <div className="flex-1 overflow-y-auto scroll-thin px-4 py-5 space-y-1.5" style={{ background: 'var(--bg-thread)' }}>
         {selectedChat.messages.map((m, i) => {
           const mine = m.senderId === user.uid
           const prev = selectedChat.messages[i - 1]
@@ -128,24 +128,24 @@ export default function ChatBox({ onOpenProfile }) {
                 {!mine && (
                   <Avatar name={other.name} src={other.avatar} uid={other.uid} size={28} radius={999} className="mb-5" />
                 )}
-                <div className="max-w-[74%]">
+                <div className="max-w-[80%]">
                   {m.image && (
                     <img
                       src={m.image}
                       alt="attachment"
-                      className="max-w-[240px] rounded-[18px] mb-1"
+                      className="max-w-[260px] rounded-[18px] mb-1"
                     />
                   )}
                   {m.text && (
                     <div
-                      className="px-4 py-2.5 text-[14.5px] leading-[1.45]"
+                      className="px-[18px] py-[11px] text-[16px] leading-[1.5]"
                       style={
                         mine
                           ? {
                               background: 'linear-gradient(135deg, var(--violet), var(--violet-deep))',
                               color: '#fff',
                               borderRadius: '18px 18px 6px 18px',
-                              boxShadow: '0 6px 18px rgba(124,92,252,.25)',
+                              boxShadow: '0 6px 18px rgba(109,74,224,.28)',
                             }
                           : {
                               background: 'var(--bg-surface)',
@@ -240,8 +240,8 @@ export default function ChatBox({ onOpenProfile }) {
             type="submit"
             aria-label="Send"
             disabled={!text.trim()}
-            className="press shrink-0 w-10 h-10 grid place-items-center rounded-full text-white transition disabled:opacity-40 qc-grad"
-            style={{ boxShadow: '0 8px 20px rgba(124,92,252,.4)' }}
+            className="press shrink-0 w-10 h-10 grid place-items-center rounded-full text-white transition disabled:opacity-40 qc-glow"
+            style={{ boxShadow: '0 8px 20px rgba(255,112,56,.42)' }}
           >
             <SendIcon width={18} height={18} />
           </button>

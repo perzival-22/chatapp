@@ -18,7 +18,7 @@ export default function Chat() {
   return (
     <div
       className="fixed inset-0 flex items-stretch justify-center sm:items-center sm:p-6"
-      style={{ background: '#eceaf6' }}
+      style={{ background: 'var(--bg-shell)' }}
     >
       <div className="qc-frame relative w-full h-full overflow-hidden bg-white sm:w-[400px] sm:h-[860px] sm:max-h-[94vh] sm:rounded-[34px] flex flex-col">
         {inThread ? (

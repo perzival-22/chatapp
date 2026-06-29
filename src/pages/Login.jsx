@@ -27,31 +27,28 @@ export default function Login() {
   }
 
   return (
-    <div className="login-bg fixed inset-0 flex items-center justify-center px-6 text-white">
+    <div className="login-bg fixed inset-0 flex items-center justify-center px-6" style={{ color: 'var(--text-primary)' }}>
       {/* Brand mark, pinned top-center */}
       <div className="fixed top-[34px] left-1/2 -translate-x-1/2 flex items-center gap-[11px]">
         <div
-          className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, #ffb14e, #ff8a3d)',
-            boxShadow: '0 8px 20px rgba(255, 138, 61, 0.4)',
-          }}
+          className="qc-grad w-[34px] h-[34px] rounded-[10px] flex items-center justify-center"
+          style={{ boxShadow: '0 8px 20px rgba(109, 74, 224, 0.4)' }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v7A2.5 2.5 0 0 1 17.5 15H9l-4 4v-4H6.5A2.5 2.5 0 0 1 4 12.5v-7Z"
-              fill="#1a0e04"
+              fill="#fff"
             />
           </svg>
         </div>
         <span className="font-display font-bold text-[18px]">QuickChat</span>
       </div>
 
-      {/* warm glow behind the glass */}
+      {/* dusk aurora behind the card */}
       <div className="relative">
         <div className="glass-glow" />
 
-        {/* liquid glass card */}
+        {/* soft light card */}
         <form
           onSubmit={handleSubmit}
           className="glass-card w-[400px] max-w-[calc(100vw-3rem)] px-[40px] py-[44px]"
@@ -59,13 +56,13 @@ export default function Login() {
           <h1 className="font-display font-semibold text-[26px] tracking-[-0.02em] text-center mb-2">
             {isSignup ? 'Create account' : 'Welcome back'}
           </h1>
-          <p className="text-[14px] text-center mb-[30px]" style={{ color: '#8a7f72' }}>
+          <p className="text-[14px] text-center mb-[30px]" style={{ color: 'var(--text-secondary)' }}>
             {isSignup ? 'Join QuickChat in seconds' : 'Sign in to your QuickChat account'}
           </p>
 
           {isSignup && (
             <>
-              <label className="block font-semibold text-[13px] mb-2" style={{ color: '#bcb0a2' }}>
+              <label className="block font-semibold text-[13px] mb-2" style={{ color: 'var(--text-secondary)' }}>
                 Full name
               </label>
               <input
@@ -79,7 +76,7 @@ export default function Login() {
             </>
           )}
 
-          <label className="block font-semibold text-[13px] mb-2" style={{ color: '#bcb0a2' }}>
+          <label className="block font-semibold text-[13px] mb-2" style={{ color: 'var(--text-secondary)' }}>
             Email
           </label>
           <input
@@ -92,11 +89,11 @@ export default function Login() {
           />
 
           <div className="flex items-center justify-between mb-2">
-            <label className="font-semibold text-[13px]" style={{ color: '#bcb0a2' }}>
+            <label className="font-semibold text-[13px]" style={{ color: 'var(--text-secondary)' }}>
               Password
             </label>
             {!isSignup && (
-              <a href="#" className="font-medium text-[13px]" style={{ color: '#ffb14e' }}>
+              <a href="#" className="font-semibold text-[13px]" style={{ color: 'var(--violet)' }}>
                 Forgot?
               </a>
             )}
@@ -110,23 +107,30 @@ export default function Login() {
             className="glass-input mb-[22px]"
           />
 
-          <label className="flex items-start gap-2 text-xs mb-[22px]" style={{ color: '#8a7f72' }}>
+          <label className="flex items-start gap-2 text-xs mb-[22px]" style={{ color: 'var(--text-secondary)' }}>
             <input
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-0.5 accent-[#ff8a3d]"
+              className="mt-0.5 accent-[#6d4ae0]"
             />
             <span>Agree to the terms of use &amp; privacy policy.</span>
           </label>
 
-          {error && <p className="text-red-300 text-sm mb-4 capitalize">{error}</p>}
+          {error && (
+            <p
+              className="text-[13px] mb-4 capitalize rounded-[11px] px-3 py-2.5"
+              style={{ background: '#ffecef', color: 'var(--end-call)' }}
+            >
+              {error}
+            </p>
+          )}
 
           <button type="submit" disabled={!agreed} className="amber-btn">
             {isSignup ? 'Create account' : 'Sign in'}
           </button>
 
-          <p className="text-center text-[13px] mt-6" style={{ color: '#6f655a' }}>
+          <p className="text-center text-[13px] mt-6" style={{ color: 'var(--text-secondary)' }}>
             {isSignup ? 'Already have an account? ' : 'New here? '}
             <button
               type="button"
@@ -135,7 +139,7 @@ export default function Login() {
                 setError('')
               }}
               className="font-semibold"
-              style={{ color: '#ffc375' }}
+              style={{ color: 'var(--violet)' }}
             >
               {isSignup ? 'Sign in' : 'Create account'}
             </button>

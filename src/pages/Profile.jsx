@@ -11,6 +11,7 @@ export default function Profile() {
   const [avatar, setAvatar] = useState(user.avatar)
   const [avatarFile, setAvatarFile] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const handleAvatar = (e) => {
@@ -19,10 +20,18 @@ export default function Profile() {
   }
   const handleSave = async (e) => {
     e.preventDefault()
+    setError('')
     setSaving(true)
     try {
-      await updateProfile({ name, bio, ...(avatarFile && { avatarFile }) })
+      await updateProfile({ name: name.trim(), bio, ...(avatarFile && { avatarFile }) })
       navigate('/')
+    } catch (err) {
+      console.error('Profile save failed:', err)
+      setError(
+        err?.code === 'storage/unauthorized' || err?.code === 'storage/unknown'
+          ? 'Saved your details, but the photo upload was blocked. Check Firebase Storage rules.'
+          : (err?.message || 'Could not save. Check your connection and try again.')
+      )
     } finally {
       setSaving(false)
     }
@@ -31,7 +40,7 @@ export default function Profile() {
   const isUpload = typeof avatar === 'string' && /^(blob:|https?:)/.test(avatar)
 
   return (
-    <div className="fixed inset-0 flex items-stretch justify-center sm:items-center sm:p-6" style={{ background: '#eceaf6' }}>
+    <div className="fixed inset-0 flex items-stretch justify-center sm:items-center sm:p-6" style={{ background: 'var(--bg-shell)' }}>
       <div className="qc-frame relative w-full h-full overflow-hidden bg-white sm:w-[400px] sm:h-[860px] sm:max-h-[94vh] sm:rounded-[34px] flex flex-col" style={{ color: 'var(--text-primary)' }}>
         {/* Header */}
         <div className="qc-grad px-5 pt-5 pb-7 rounded-b-[26px] text-white">
@@ -92,6 +101,15 @@ export default function Profile() {
               style={{ background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
             />
           </div>
+
+          {error && (
+            <p
+              className="w-full mt-4 text-[12.5px] rounded-[12px] px-3 py-2.5"
+              style={{ background: '#ffecef', color: 'var(--end-call)' }}
+            >
+              {error}
+            </p>
+          )}
         </form>
 
         <div className="p-5 flex gap-3 bg-white">

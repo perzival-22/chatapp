@@ -98,16 +98,20 @@ export function AppProvider({ children }) {
   const login = (email, password) => signInWithEmailAndPassword(auth, email, password)
   const logout = () => signOut(auth)
 
-  const updateProfile = async (patch) => {
-    let next = { ...patch }
-    if (patch.avatarFile) {
-      const r = ref(storage, `avatars/${user.uid}`)
-      await uploadBytes(r, patch.avatarFile)
-      next.avatar = await getDownloadURL(r)
-      delete next.avatarFile
+  const updateProfile = async ({ avatarFile, ...fields } = {}) => {
+    // Persist text fields (name/bio) FIRST so they aren't lost if the avatar
+    // upload later fails (Storage disabled, rules, CORS, offline, etc.).
+    if (Object.keys(fields).length) {
+      await updateDoc(doc(db, 'users', user.uid), fields)
+      setUser((u) => ({ ...u, ...fields }))
     }
-    await updateDoc(doc(db, 'users', user.uid), next)
-    setUser((u) => ({ ...u, ...next }))
+    if (avatarFile) {
+      const r = ref(storage, `avatars/${user.uid}`)
+      await uploadBytes(r, avatarFile)
+      const avatar = await getDownloadURL(r)
+      await updateDoc(doc(db, 'users', user.uid), { avatar })
+      setUser((u) => ({ ...u, avatar }))
+    }
   }
 
   // Deterministic id so two people always share ONE chat doc

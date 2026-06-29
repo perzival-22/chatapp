@@ -79,7 +79,7 @@ export default function Sidebar() {
                 >
                   <Avatar
                     name={u.name} src={u.avatar} uid={u.uid} size={48} radius={999}
-                    online ringColor="#7657f3"
+                    online ringColor="#6d4ae0"
                   />
                   <span className="text-[11px] text-white/85 truncate w-full text-center">
                     {u.name.split(' ')[0]}
@@ -196,8 +196,7 @@ export default function Sidebar() {
                   </p>
                   {unread > 0 ? (
                     <span
-                      className="shrink-0 h-[20px] min-w-[20px] px-1.5 grid place-items-center text-[11px] font-bold rounded-full text-white"
-                      style={{ background: 'var(--violet)' }}
+                      className="qc-glow shrink-0 h-[20px] min-w-[20px] px-1.5 grid place-items-center text-[11px] font-bold rounded-full text-white"
                     >
                       {unread}
                     </span>
@@ -240,7 +239,7 @@ export default function Sidebar() {
           onClick={() => selectChat(null)}
           aria-label="Messages"
           className="press -mt-8 rounded-full grid place-items-center text-white qc-grad"
-          style={{ width: 60, height: 60, boxShadow: '0 8px 20px rgba(124,92,252,.4)' }}
+          style={{ width: 60, height: 60, boxShadow: '0 8px 20px rgba(109,74,224,.4)' }}
         >
           <MessageIcon width={26} height={26} />
         </button>
