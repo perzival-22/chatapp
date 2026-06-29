@@ -79,7 +79,7 @@ export default function Sidebar() {
                 >
                   <Avatar
                     name={u.name} src={u.avatar} uid={u.uid} size={48} radius={999}
-                    online ringColor="#6d4ae0"
+                    online={u.online} ringColor="#6d4ae0"
                   />
                   <span className="text-[11px] text-white/85 truncate w-full text-center">
                     {u.name.split(' ')[0]}

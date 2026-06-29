@@ -89,7 +89,7 @@ export function AppProvider({ children }) {
     const profile = {
       uid: fbUser.uid, name, email,
       bio: 'Hi, I am using QuickChat.',
-      avatar: assets.avatar_icon, lastSeen: Date.now(),
+      avatar: assets.avatar_icon, lastSeen: Date.now(), online: true,
     }
     await setDoc(doc(db, 'users', fbUser.uid), profile)
     setUser(profile)

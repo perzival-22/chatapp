@@ -30,6 +30,8 @@ export function CallProvider({ children }) {
   const pc = useRef(null)
   const callRef = useRef(null)       // Firestore doc ref of the active call
   const unsubs = useRef([])          // snapshot unsubscribers to clean up
+  const statusRef = useRef(status)   // latest status, read by the always-on listener
+  useEffect(() => { statusRef.current = status }, [status])
 
   const stop = (fn) => { try { fn() } catch { /* best effort */ } }
 
@@ -81,19 +83,33 @@ export function CallProvider({ children }) {
       if (e.candidate) addDoc(offerCandidates, e.candidate.toJSON())
     }
 
-    const offer = await connection.createOffer()
-    await connection.setLocalDescription(offer)
+    try {
+      const offer = await connection.createOffer()
+      await connection.setLocalDescription(offer)
 
-    await setDoc(ref, {
-      callerId: user.uid,
-      callerName: user.name,
-      callerAvatar: user.avatar,
-      calleeId: otherUser.uid,
-      type,
-      offer: { type: offer.type, sdp: offer.sdp },
-      status: 'ringing',
-      createdAt: serverTimestamp(),
-    })
+      await setDoc(ref, {
+        callerId: user.uid,
+        callerName: user.name,
+        callerAvatar: user.avatar,
+        calleeId: otherUser.uid,
+        type,
+        offer: { type: offer.type, sdp: offer.sdp },
+        status: 'ringing',
+        createdAt: serverTimestamp(),
+      })
+    } catch (err) {
+      // Signaling failed (offer creation or Firestore write rejected) — tear
+      // down media + connection so we don't leave the camera/mic live or the
+      // status stuck on 'calling'.
+      console.error('startCall signaling failed:', err)
+      stop(() => localStream.current?.getTracks().forEach((t) => t.stop()))
+      stop(() => connection.close())
+      pc.current = null; callRef.current = null
+      localStream.current = null; remoteStream.current = null
+      setLocalMedia(null); setRemoteMedia(null)
+      setStatus('idle'); setPeer(null)
+      return
+    }
 
     // Answer candidates can arrive before (or interleaved with) the answer
     // itself — Firestore doesn't order the two listeners, and
@@ -133,7 +149,9 @@ export function CallProvider({ children }) {
     const { callId, data } = incoming
     setCallType(data.type)
     setPeer(findUser(data.callerId) || { name: data.callerName, avatar: data.callerAvatar, uid: data.callerId })
-    setStatus('connected')
+    // 'calling' = connecting placeholder; we only flip to 'connected' once the
+    // answer is actually written back to the signaling doc.
+    setStatus('calling')
     setIncoming(null)
 
     let connection
@@ -155,10 +173,25 @@ export function CallProvider({ children }) {
       if (e.candidate) addDoc(answerCandidates, e.candidate.toJSON())
     }
 
-    await connection.setRemoteDescription(new RTCSessionDescription(data.offer))
-    const answer = await connection.createAnswer()
-    await connection.setLocalDescription(answer)
-    await updateDoc(ref, { answer: { type: answer.type, sdp: answer.sdp }, status: 'accepted' })
+    try {
+      await connection.setRemoteDescription(new RTCSessionDescription(data.offer))
+      const answer = await connection.createAnswer()
+      await connection.setLocalDescription(answer)
+      await updateDoc(ref, { answer: { type: answer.type, sdp: answer.sdp }, status: 'accepted' })
+      setStatus('connected')
+    } catch (err) {
+      // Answer/signaling failed — stop media, close the connection and reset so
+      // we never leave the camera/mic live or the status stuck on 'calling'.
+      console.error('acceptCall signaling failed:', err)
+      stop(() => updateDoc(ref, { status: 'declined' }))
+      stop(() => localStream.current?.getTracks().forEach((t) => t.stop()))
+      stop(() => connection.close())
+      pc.current = null; callRef.current = null
+      localStream.current = null; remoteStream.current = null
+      setLocalMedia(null); setRemoteMedia(null)
+      setStatus('idle'); setPeer(null)
+      return
+    }
 
     unsubs.current.push(onSnapshot(offerCandidates, (qs) => {
       qs.docChanges().forEach((c) => {
@@ -213,12 +246,13 @@ export function CallProvider({ children }) {
     if (!user) return
     const q = query(collection(db, 'calls'), where('calleeId', '==', user.uid))
     return onSnapshot(q, (qs) => {
-      // ignore while already in a call
-      if (status !== 'idle') return
+      // ignore while already in a call (read from a ref so this subscription
+      // stays stable and isn't torn down/rebuilt on every status change)
+      if (statusRef.current !== 'idle') return
       const ring = qs.docs.find((d) => d.data().status === 'ringing' && !d.data().answer)
       setIncoming(ring ? { callId: ring.id, data: ring.data() } : null)
     })
-  }, [user, status])
+  }, [user])
 
   return (
     <CallContext.Provider value={{

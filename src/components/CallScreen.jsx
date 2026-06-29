@@ -18,7 +18,7 @@ function useElapsed(active) {
   }, [active])
   const mm = String(Math.floor(sec / 60)).padStart(2, '0')
   const ss = String(sec % 60).padStart(2, '0')
-  return `${mm}.${ss} mins`
+  return `${mm}:${ss}`
 }
 
 export default function CallScreen() {
@@ -31,11 +31,19 @@ export default function CallScreen() {
   // control's visual state only.
   const [speakerOn, setSpeakerOn] = useState(true)
 
+  // Minimizing returns the user to the chat without tearing down the call.
+  const [minimized, setMinimized] = useState(false)
+
   const localVid = useRef(null)
   const remoteVid = useRef(null)
 
   const connected = status === 'connected'
   const elapsed = useElapsed(connected)
+
+  // A call that ends should never leave the UI stuck in the minimized state.
+  useEffect(() => {
+    if (status === 'idle') setMinimized(false)
+  }, [status])
 
   useEffect(() => {
     if (localVid.current) localVid.current.srcObject = localStream
@@ -69,6 +77,25 @@ export default function CallScreen() {
   }
 
   if (status === 'idle') return null
+
+  // ---- Minimized: call stays live, chat is usable behind it ------------
+  if (minimized) {
+    return (
+      <button
+        onClick={() => setMinimized(false)}
+        className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2.5 rounded-full text-white shadow-lg"
+        style={{ background: VIOLET, boxShadow: `0 12px 30px ${VIOLET}66` }}
+        aria-label="Return to call"
+      >
+        <Avatar name={peer?.name} src={peer?.avatar} uid={peer?.uid} size={32} radius={999} />
+        <div className="text-left leading-tight">
+          <p className="font-semibold text-[14px]">{peer?.name}</p>
+          <p className="text-[12px] text-white/85">{connected ? elapsed : 'Connecting…'}</p>
+        </div>
+        <span className="ml-1"><PhoneIcon width={18} height={18} /></span>
+      </button>
+    )
+  }
 
   const isVideo = callType === 'video'
 
@@ -120,7 +147,7 @@ export default function CallScreen() {
           <GlassBtn active={speakerOn} onClick={() => setSpeakerOn((v) => !v)} label="Speaker">
             <SpeakerIcon width={22} height={22} />
           </GlassBtn>
-          <GlassBtn onClick={endCall} label="Message">
+          <GlassBtn onClick={() => setMinimized(true)} label="Message">
             <MessageIcon width={22} height={22} />
           </GlassBtn>
         </div>
@@ -150,7 +177,7 @@ export default function CallScreen() {
 
       {/* Controls — Message / Mute / End / Speaker */}
       <div className="flex items-center justify-center gap-4 pb-16">
-        <TintBtn onClick={endCall} label="Message">
+        <TintBtn onClick={() => setMinimized(true)} label="Message">
           <MessageIcon width={22} height={22} />
         </TintBtn>
         <TintBtn active={muted} onClick={toggleMute} label={muted ? 'Unmute' : 'Mute'}>
