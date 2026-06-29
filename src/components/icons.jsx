@@ -131,3 +131,74 @@ export function LogoIcon(props) {
     </svg>
   )
 }
+
+// --- Added for the mobile redesign ----------------------------------------
+
+export function ChevronLeftIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  )
+}
+
+export function HomeIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M3 10.5 12 3l9 7.5" />
+      <path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" />
+    </svg>
+  )
+}
+
+export function HeartIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1Z" />
+    </svg>
+  )
+}
+
+export function UserIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+    </svg>
+  )
+}
+
+export function CheckCheckIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m1.5 13 4 4L15 7.5" />
+      <path d="m11 14 1.5 1.5L22 6" />
+    </svg>
+  )
+}
+
+export function SpeakerIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M11 5 6 9H2v6h4l5 4V5Z" />
+      <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />
+    </svg>
+  )
+}
+
+export function MessageIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M21 11.5a8 8 0 0 1-11.5 7.2L3 21l2.3-6.5A8 8 0 1 1 21 11.5Z" />
+    </svg>
+  )
+}
+
+export function ArchiveIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <rect x="3" y="4" width="18" height="4" rx="1" />
+      <path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4" />
+    </svg>
+  )
+}

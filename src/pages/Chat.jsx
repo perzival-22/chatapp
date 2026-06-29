@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext.jsx'
 
 export default function Chat() {
   const { selectedChat } = useApp()
+  const inThread = !!selectedChat
 
   return (
     <div
@@ -18,9 +19,14 @@ export default function Chat() {
                    sm:rounded-[18px] border"
         style={{ borderColor: '#181826', boxShadow: '0 30px 80px rgba(0,0,0,.55)' }}
       >
-        <Sidebar />
-        <ChatBox />
-        {/* Right detail panel only when a chat is open and the screen is wide */}
+        <div className={`h-full min-h-0 ${inThread ? 'hidden md:block' : 'block'}`}>
+          <Sidebar />
+        </div>
+
+        <div className={`h-full min-h-0 ${inThread ? 'block' : 'hidden md:block'}`}>
+          <ChatBox />
+        </div>
+
         {selectedChat && <RightSidebar />}
       </div>
     </div>
