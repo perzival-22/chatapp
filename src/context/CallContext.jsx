@@ -20,9 +20,13 @@ export function CallProvider({ children }) {
   const [muted, setMuted] = useState(false)
   const [cameraOff, setCameraOff] = useState(false)
 
-  // streams exposed to <CallScreen> via refs (videos read these)
+  // Streams are kept on refs for synchronous in-call logic (toggle/teardown)
+  // AND mirrored to state so <CallScreen> can attach them reactively. Refs
+  // alone don't re-run the attach effect, which loses the callee's media.
   const localStream = useRef(null)
   const remoteStream = useRef(null)
+  const [localMedia, setLocalMedia] = useState(null)
+  const [remoteMedia, setRemoteMedia] = useState(null)
   const pc = useRef(null)
   const callRef = useRef(null)       // Firestore doc ref of the active call
   const unsubs = useRef([])          // snapshot unsubscribers to clean up
@@ -37,6 +41,8 @@ export function CallProvider({ children }) {
     })
     localStream.current = stream
     remoteStream.current = new MediaStream()
+    setLocalMedia(stream)
+    setRemoteMedia(remoteStream.current)
 
     const connection = new RTCPeerConnection(rtcConfig)
     stream.getTracks().forEach((t) => connection.addTrack(t, stream))
@@ -44,7 +50,9 @@ export function CallProvider({ children }) {
       e.streams[0].getTracks().forEach((t) => remoteStream.current.addTrack(t))
     }
     connection.onconnectionstatechange = () => {
-      if (['disconnected', 'failed', 'closed'].includes(connection.connectionState)) endCall()
+      // 'disconnected' is often transient (brief network blip) and recovers on
+      // its own — only tear down on terminal states.
+      if (['failed', 'closed'].includes(connection.connectionState)) endCall()
     }
     pc.current = connection
     return connection
@@ -87,12 +95,22 @@ export function CallProvider({ children }) {
       createdAt: serverTimestamp(),
     })
 
+    // Answer candidates can arrive before (or interleaved with) the answer
+    // itself — Firestore doesn't order the two listeners, and
+    // setRemoteDescription is async. Buffer until the remote description is
+    // actually set, then flush, so no early host/srflx candidates are lost.
+    const pendingCandidates = []
+    let remoteSet = false
+
     // listen for the answer + status changes
-    unsubs.current.push(onSnapshot(ref, (snap) => {
+    unsubs.current.push(onSnapshot(ref, async (snap) => {
       const data = snap.data()
       if (!data) return
-      if (data.answer && !connection.currentRemoteDescription) {
-        connection.setRemoteDescription(new RTCSessionDescription(data.answer))
+      if (data.answer && !remoteSet) {
+        await connection.setRemoteDescription(new RTCSessionDescription(data.answer))
+        remoteSet = true
+        pendingCandidates.forEach((c) => connection.addIceCandidate(new RTCIceCandidate(c)))
+        pendingCandidates.length = 0
         setStatus('connected')
       }
       if (data.status === 'declined' || data.status === 'ended') endCall()
@@ -101,9 +119,10 @@ export function CallProvider({ children }) {
     // remote ICE candidates (buffered until remote description exists)
     unsubs.current.push(onSnapshot(answerCandidates, (qs) => {
       qs.docChanges().forEach((c) => {
-        if (c.type === 'added' && connection.currentRemoteDescription) {
-          connection.addIceCandidate(new RTCIceCandidate(c.doc.data()))
-        }
+        if (c.type !== 'added') return
+        const cand = c.doc.data()
+        if (remoteSet) connection.addIceCandidate(new RTCIceCandidate(cand))
+        else pendingCandidates.push(cand)
       })
     }))
   }
@@ -175,6 +194,7 @@ export function CallProvider({ children }) {
     }
     pc.current = null; callRef.current = null
     localStream.current = null; remoteStream.current = null
+    setLocalMedia(null); setRemoteMedia(null)
     setStatus('idle'); setPeer(null); setMuted(false); setCameraOff(false)
   }
 
@@ -203,7 +223,7 @@ export function CallProvider({ children }) {
   return (
     <CallContext.Provider value={{
       status, callType, peer, incoming, muted, cameraOff,
-      localStream, remoteStream,
+      localStream: localMedia, remoteStream: remoteMedia,
       startCall, acceptCall, declineCall, endCall, toggleMute, toggleCamera,
     }}>
       {children}

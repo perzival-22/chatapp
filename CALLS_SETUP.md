@@ -418,13 +418,34 @@ STUN-only will fail for users behind symmetric NAT (common on mobile carriers an
 - **Twilio Network Traversal Service** — pay-as-you-go, very reliable.
 - **Self-host coturn** on a cheap VPS — cheapest at scale, more ops work.
 
-Add to **`.env.local`** (and to Vercel env vars in production):
+### Where do these values come from?
+
+You don't invent them and they aren't in your project or Firebase, a TURN provider issues them. **Leave all three blank until you need TURN; STUN-only works without them.** When you're ready:
+
+**Option A — Metered (free tier, fastest):**
+1. Sign up at <https://www.metered.ca/> → create a TURN app.
+2. The dashboard gives you a TURN URL, a username, and a credential. Paste those three in.
+3. Free tier is ~50 GB relay/month, plenty for testing and small usage.
+
+**Option B — Metered Open Relay (zero signup, testing only):**
+Public free TURN, fine to verify your code works, not for production (shared, rate-limited). Confirm the current values on <https://www.metered.ca/tools/openrelay/>; they're typically:
 ```
-VITE_TURN_URL=turn:your-turn-host:3478
-VITE_TURN_USERNAME=your-username
-VITE_TURN_CREDENTIAL=your-credential
+VITE_TURN_URL=turn:openrelay.metered.ca:80
+VITE_TURN_USERNAME=openrelayproject
+VITE_TURN_CREDENTIAL=openrelayproject
 ```
-`src/lib/ice.js` already picks these up automatically. No code change needed.
+
+**Option C — Twilio NTS:** pay-as-you-go, generate credentials via their API/console. Most reliable, costs per GB.
+
+**Option D — self-host coturn** on a small VPS: cheapest at scale, you set the username/credential yourself in coturn's config.
+
+Add the values to **`.env.local`** (and the same three to Vercel → Settings → Environment Variables for production):
+```
+VITE_TURN_URL=
+VITE_TURN_USERNAME=
+VITE_TURN_CREDENTIAL=
+```
+`src/lib/ice.js` already picks these up automatically, blank = STUN-only, filled = STUN+TURN. No code change either way.
 
 > Test reliability with: <https://icetest.info> or Chrome's `chrome://webrtc-internals`. To *prove* TURN works, temporarily set the connection to relay-only (`iceTransportPolicy: 'relay'` in `rtcConfig`) and confirm a call still connects.
 

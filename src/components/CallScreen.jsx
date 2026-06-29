@@ -14,10 +14,11 @@ export default function CallScreen() {
   const localVid = useRef(null)
   const remoteVid = useRef(null)
 
-  // attach streams to <video> elements once we're connected
+  // Attach streams to <video> elements. localStream/remoteStream are now state
+  // (MediaStream | null), so this re-runs whenever the streams become available.
   useEffect(() => {
-    if (localVid.current && localStream.current) localVid.current.srcObject = localStream.current
-    if (remoteVid.current && remoteStream.current) remoteVid.current.srcObject = remoteStream.current
+    if (localVid.current) localVid.current.srcObject = localStream
+    if (remoteVid.current) remoteVid.current.srcObject = remoteStream
   }, [status, callType, localStream, remoteStream])
 
   // ---- incoming call (ringing) ----
