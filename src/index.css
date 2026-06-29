@@ -1,7 +1,21 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   QuickChat Mobile — light, violet-accented design tokens (UI/UX spec §2)
+   --------------------------------------------------------------------------- */
 :root {
-  font-family: Outfit, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  --violet: #7c5cfc; /* brand, primary buttons, outgoing bubbles */
+  --violet-deep: #6a47e0; /* gradient end on headers/buttons */
+  --violet-soft: #ede8ff; /* tab/segment ground, tinted icon grounds */
+  --violet-ring: #b9a6ff; /* avatar presence ring */
+  --bg-app: #ffffff;
+  --bg-surface: #f5f3fb; /* search field, incoming bubbles, input bar */
+  --text-primary: #1c1b2e;
+  --text-secondary: #8a8a9e;
+  --online: #34d17a;
+  --end-call: #ff5b6a;
 }
 
 * {
@@ -12,18 +26,33 @@
 
 body {
   min-height: 100vh;
+  color: var(--text-primary);
+}
+
+/* Header gradient block used on chat-list & conversation surfaces (spec §2) */
+.qc-grad {
+  background: linear-gradient(135deg, var(--violet), var(--violet-deep));
+}
+
+/* Centered phone frame on larger screens (390 × 844 mockup) */
+.qc-frame {
+  box-shadow: 0 30px 80px rgba(28, 27, 46, 0.18);
 }
 
 /* Thin custom scrollbars for the chat panes */
 .scroll-thin::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 .scroll-thin::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(124, 92, 252, 0.25);
   border-radius: 9999px;
 }
 .scroll-thin::-webkit-scrollbar-track {
   background: transparent;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* ---------------------------------------------------------------------------
@@ -171,10 +200,10 @@ body {
 /* typing indicator — lead dot bounces (spec §4.3: qcb, 1.2s) */
 .qc-typing span {
   display: inline-block;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 9999px;
-  background: #8b7bff;
+  background: currentColor;
   animation: qcb 1.2s infinite ease-in-out both;
 }
 .qc-typing span:nth-child(2) {

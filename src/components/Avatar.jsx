@@ -35,7 +35,7 @@ export default function Avatar({
   size = 40,
   radius = 13,
   online = false,
-  ringColor = '#0c0c14',
+  ringColor = '#ffffff',
   className = '',
 }) {
   const [c1, c2] = pickGradient(uid || name)
@@ -74,7 +74,7 @@ export default function Avatar({
             height: dot,
             right: -1,
             bottom: -1,
-            background: '#34e0a1',
+            background: '#34d17a',
             boxShadow: `0 0 0 2.5px ${ringColor}`,
           }}
         />

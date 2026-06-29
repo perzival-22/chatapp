@@ -1,33 +1,35 @@
+import { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar.jsx'
 import ChatBox from '../components/ChatBox.jsx'
-import RightSidebar from '../components/RightSidebar.jsx'
+import ContactProfile from '../components/ContactProfile.jsx'
 import { useApp } from '../context/AppContext.jsx'
 
 export default function Chat() {
   const { selectedChat } = useApp()
+  const [showProfile, setShowProfile] = useState(false)
+
+  // Leaving a thread (or switching to another) drops back to the message view.
+  useEffect(() => {
+    setShowProfile(false)
+  }, [selectedChat?.id])
+
   const inThread = !!selectedChat
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center p-0 sm:p-6"
-      style={{ background: '#0a0a0f' }}
+      className="fixed inset-0 flex items-stretch justify-center sm:items-center sm:p-6"
+      style={{ background: '#eceaf6' }}
     >
-      <div
-        className="w-full max-w-6xl h-full sm:h-[88vh] overflow-hidden grid
-                   grid-cols-1 md:grid-cols-[340px_minmax(0,1fr)]
-                   xl:grid-cols-[340px_minmax(0,1fr)_300px]
-                   sm:rounded-[18px] border"
-        style={{ borderColor: '#181826', boxShadow: '0 30px 80px rgba(0,0,0,.55)' }}
-      >
-        <div className={`h-full min-h-0 ${inThread ? 'hidden md:block' : 'block'}`}>
+      <div className="qc-frame relative w-full h-full overflow-hidden bg-white sm:w-[400px] sm:h-[860px] sm:max-h-[94vh] sm:rounded-[34px] flex flex-col">
+        {inThread ? (
+          showProfile ? (
+            <ContactProfile onBack={() => setShowProfile(false)} />
+          ) : (
+            <ChatBox onOpenProfile={() => setShowProfile(true)} />
+          )
+        ) : (
           <Sidebar />
-        </div>
-
-        <div className={`h-full min-h-0 ${inThread ? 'block' : 'hidden md:block'}`}>
-          <ChatBox />
-        </div>
-
-        {selectedChat && <RightSidebar />}
+        )}
       </div>
     </div>
   )
